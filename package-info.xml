@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!DOCTYPE package-info SYSTEM "http://www.elkarte.net/site/package-info">
+<package-info xmlns="http://www.elkarte.net/site/package-info" xmlns:elk="http://www.elkarte.net/">
+	<name>PostgresSQLCache</name>
+	<id>tinoest:PostgresSQLCache</id>
+	<type>addon</type>
+	<version>1.0</version>
+
+	<install for="1.1 RC1 - 1.1.99">
+		<require-file name="Postgrebased.php" destination="SUBSDIR/CacheMethod">Install the PostgreSQL Cache</require-file>
+		<redirect url="index.php?action=admin;area=corefeatures" timeout="5000">redirect.txt</redirect>
+	</install>
+
+	<uninstall for="1.1 RC1 - 1.1.99">
+		<remove-file name="SUBSDIR/CacheMethod/Postgrebased.php" />
+	</uninstall>
+
+</package-info>
