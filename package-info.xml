@@ -8,7 +8,7 @@
 
 	<install for="1.1 RC1 - 1.1.99">
 		<require-file name="Postgrebased.php" destination="SUBSDIR/CacheMethod">Install the PostgreSQL Cache</require-file>
-		<redirect url="index.php?action=admin;area=corefeatures" timeout="5000">redirect.txt</redirect>
+		<redirect url="index.php?action=admin;area=serversettings;sa=cache;" timeout="5000">redirect.txt</redirect>
 	</install>
 
 	<uninstall for="1.1 RC1 - 1.1.99">
