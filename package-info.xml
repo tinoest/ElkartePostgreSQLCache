@@ -4,7 +4,7 @@
 	<name>PostgresSQLCache</name>
 	<id>tinoest:PostgresSQLCache</id>
 	<type>addon</type>
-	<version>1.0.1</version>
+	<version>1.0.2</version>
 
 	<install for="1.1 RC1 - 1.1.99">
 		<require-file name="Postgrebased.php" destination="SUBSDIR/CacheMethod">Install the PostgreSQL Cache</require-file>
