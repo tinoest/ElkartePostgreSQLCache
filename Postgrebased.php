@@ -32,14 +32,9 @@ class Postgrebased extends Cache_Method_Abstract
 	 */
 	public function __construct($options)
 	{
-
-		global $modSettings;
-
-		$oldModSetting					    = $modSettings['disableQueryCheck'];
-		$modSettings['disableQueryCheck']   = true;
-
 		parent::__construct($options);
 
+		self::disableQueryCheck();
 		$db		= database();
 		if($db->fetch_row($db->query('', 'SELECT to_regclass(\'{db_prefix}cache\');')[0]) == null)
 		{
@@ -56,7 +51,7 @@ class Postgrebased extends Cache_Method_Abstract
 			);
 		}
 
-		$modSettings['disableQueryCheck'] = $oldModSetting;
+		self::disableQueryCheck(false);
 
 		return true;
 	}
@@ -73,10 +68,9 @@ class Postgrebased extends Cache_Method_Abstract
 	 */
 	public function put($key, $value, $ttl = 120)
 	{
-		global $modSettings;
+		global $db_prefix;
 
-		$oldModSetting					    = $modSettings['disableQueryCheck'];
-		$modSettings['disableQueryCheck']   = true;
+		self::disableQueryCheck();
 
 		$db			= database();
 		$key		= $db->escape_string($key);
@@ -84,14 +78,16 @@ class Postgrebased extends Cache_Method_Abstract
 		$ttl		= time();
 		$ttl		= $db->escape_string($ttl);
 
-		$query	= 'UPDATE {db_prefix}cache SET value =\''.$value.'\', ttl = \''.$ttl.'\' WHERE key = \''.$key.'\';
+		$query	= "UPDATE {db_prefix}cache SET value = '{$value}', ttl = '{$ttl}' WHERE key = '{$key}';
 						INSERT INTO {db_prefix}cache (key, value, ttl)
-						SELECT \''.$key.'\', \''.$value.'\', \''.$ttl.'\'
-							WHERE NOT EXISTS (SELECT 1 FROM {db_prefix}cache WHERE key = \''.$key.'\');';
+						SELECT '{$key}', '{$value}', '{$ttl}'
+							WHERE NOT EXISTS (SELECT 1 FROM {db_prefix}cache WHERE key = '{$key}');";
+
+		$query	= str_replace('{db_prefix}', $db_prefix, $query);
 
 		$result = $db->query('', $query);
 
-		$modSettings['disableQueryCheck'] = $oldModSetting;
+		self::disableQueryCheck(false);
 
 		return $result;
 	}
@@ -101,18 +97,18 @@ class Postgrebased extends Cache_Method_Abstract
 	 */
 	public function get($key, $ttl = 120)
 	{
-		global $modSettings;
+		global $db_prefix;
 
-		$oldModSetting						= $modSettings['disableQueryCheck'];
-		$modSettings['disableQueryCheck']   = true;
+		self::disableQueryCheck();
 
 		$db			= database();
 		$ttl		= time() - $ttl;
 		$query	= 'SELECT value FROM {db_prefix}cache WHERE key = \'' . $db->escape_string($key) . '\' AND ttl >= ' . $ttl . ' LIMIT 1';
+		$query	= str_replace('{db_prefix}', $db_prefix, $query);
 		$result = $db->query('', $query);
 		$value	= $db->fetch_assoc($result)['value'];
 
-		$modSettings['disableQueryCheck']   = $oldModSetting;
+		self::disableQueryCheck(false);
 
 		return !empty($value) ? $value : null;
 
@@ -123,19 +119,15 @@ class Postgrebased extends Cache_Method_Abstract
 	 */
 	public function clean($type = '')
 	{
-		global $modSettings;
-
-		$oldModSetting						= $modSettings['disableQueryCheck'];
-		$modSettings['disableQueryCheck']   = true;
+		self::disableQueryCheck();
 
 		$db			= database();
 		$query	= 'DELETE FROM {db_prefix}cache;';
 		$result = $db->query('', $query);
 
-		$modSettings['disableQueryCheck']   = $oldModSetting;
+		self::disableQueryCheck(false);
 
-		return $result;
-
+        return $result;
 	}
 
 	/**
@@ -169,4 +161,26 @@ class Postgrebased extends Cache_Method_Abstract
 	{
 
 	}
+
+	private function disableQueryCheck($state = true)
+	{
+		static $oldModSetting = null;
+		global $modSettings;
+
+		if(isset($modSettings['disableQueryCheck']) && ($state == true)) {
+			$oldModSetting	= $modSettings['disableQueryCheck'];
+		}
+
+		if($state == false && is_null($oldModSetting)) {
+			unset($modSettings['disableQueryCheck']);
+		}
+		else if( $state == false) {
+			$modSettings['disableQueyCheck'] = $oldModSetting;
+		}
+		else {
+			$modSettings['disableQueryCheck'] = $state;
+		}
+
+	}
+
 }
