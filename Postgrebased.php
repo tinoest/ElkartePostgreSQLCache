@@ -72,11 +72,11 @@ class Postgrebased extends Cache_Method_Abstract
 
 		self::disableQueryCheck();
 
-		$db			= database();
-		$key		= $db->escape_string($key);
+		$db		= database();
+		$key	= $db->escape_string($key);
 		$value	= $db->escape_string($value);
-		$ttl		= time();
-		$ttl		= $db->escape_string($ttl);
+		$ttl    = time();
+		$ttl    = $db->escape_string($ttl);
 
 		$query	= "UPDATE {db_prefix}cache SET value = '{$value}', ttl = '{$ttl}' WHERE key = '{$key}';
 						INSERT INTO {db_prefix}cache (key, value, ttl)
@@ -101,9 +101,9 @@ class Postgrebased extends Cache_Method_Abstract
 
 		self::disableQueryCheck();
 
-		$db			= database();
-		$ttl		= time() - $ttl;
-		$query	= 'SELECT value FROM {db_prefix}cache WHERE key = \'' . $db->escape_string($key) . '\' AND ttl >= ' . $ttl . ' LIMIT 1';
+		$db		= database();
+		$ttl	= time() - $ttl;
+		$query  = 'SELECT value FROM {db_prefix}cache WHERE key = \'' . $db->escape_string($key) . '\' AND ttl >= ' . $ttl . ' LIMIT 1';
 		$query	= str_replace('{db_prefix}', $db_prefix, $query);
 		$result = $db->query('', $query);
 		$value	= $db->fetch_assoc($result)['value'];
@@ -121,7 +121,7 @@ class Postgrebased extends Cache_Method_Abstract
 	{
 		self::disableQueryCheck();
 
-		$db			= database();
+		$db	    = database();
 		$query	= 'DELETE FROM {db_prefix}cache;';
 		$result = $db->query('', $query);
 
